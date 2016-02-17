@@ -1,6 +1,7 @@
 from random import choice, randint, shuffle
-import string
+
 import os
+import string
 
 class Table:
 
@@ -19,32 +20,16 @@ class Table:
         self.outputFile = open("%s/%s.tbl" % (path, self.name), "w")
         self.metaDataFile = metaDataFile
 
-    def checkAndCreatePath(self, path):
-        if not os.path.exists(path):
-            os.makedirs(path)
+    def build(self):
+        self.buildTableHeader()
+        self.determineStringColumnLength()
+        self.generateValues()
+        self.generateValueOrder()
+        self.buildTableData()
+        self.writeTableMetaData()
+        self.outputFile.close()
 
-    def calculateMemoryBudget(self):
-        memoryBudget = 0
-
-        for uniqueValue in self.uniqueValues:
-            memoryBudget += 8 * (uniqueValue + 1)
-            memoryBudget += 8 * self.rows
-            memoryBudget += 8 + 24 + 24 + 24
-
-        return memoryBudget
-
-
-    def normalizeUniqueValues(self, uniqueValues, columns):
-        if isinstance(uniqueValues, list):
-            return uniqueValues
-        else:
-            return [uniqueValues] * columns
-
-    def buildTableHeader(self):
-        self.buildColumnNames()
-        self.buildDataTypes()
-        self.buildPartitioning()
-        self.buildHeaderBoundary()
+        return self.memoryBudgetForFullIndexation
 
     def buildColumnNames(self):
         columnNames = ""
@@ -67,6 +52,9 @@ class Table:
 
         self.outputFile.write(columnTypes + "\n")
 
+    def buildHeaderBoundary(self):
+        self.outputFile.write("===\n")
+
     def buildPartitioning(self):
         columnPartition = ""
         for column in range(0, self.columns):
@@ -76,8 +64,36 @@ class Table:
 
         self.outputFile.write(columnPartition + "\n")
 
-    def buildHeaderBoundary(self):
-        self.outputFile.write("===\n")
+    def buildTableData(self):
+        for row in range(0, self.rows):
+            rowValues = ""
+
+            for column in range(0, self.columns):
+                if column > 0:
+                    rowValues += "|"
+                rowValues += self.values[column][self.valueOrder[row] % self.uniqueValues[column]]
+
+            self.outputFile.write(rowValues + "\n")
+
+    def buildTableHeader(self):
+        self.buildColumnNames()
+        self.buildDataTypes()
+        self.buildPartitioning()
+        self.buildHeaderBoundary()
+
+    def calculateMemoryBudget(self):
+        memoryBudget = 0
+
+        for uniqueValue in self.uniqueValues:
+            memoryBudget += 8 * (uniqueValue + 1)
+            memoryBudget += 8 * self.rows
+            memoryBudget += 8 + 24 + 24 + 24
+
+        return memoryBudget
+
+    def checkAndCreatePath(self, path):
+        if not os.path.exists(path):
+            os.makedirs(path)
 
     def determineStringColumnLength(self):
         # None indicating that column is not a string column
@@ -122,16 +138,11 @@ class Table:
         self.valueOrder = range(self.rows)
         shuffle(self.valueOrder)
 
-    def buildTableData(self):
-        for row in range(0, self.rows):
-            rowValues = ""
-
-            for column in range(0, self.columns):
-                if column > 0:
-                    rowValues += "|"
-                rowValues += self.values[column][self.valueOrder[row] % self.uniqueValues[column]]
-
-            self.outputFile.write(rowValues + "\n")
+    def normalizeUniqueValues(self, uniqueValues, columns):
+        if isinstance(uniqueValues, list):
+            return uniqueValues
+        else:
+            return [uniqueValues] * columns
 
     def writeTableMetaData(self):
         self.metaDataFile.write("%s rows: %i\n" % (self.name, self.rows))
@@ -142,14 +153,3 @@ class Table:
                 self.metaDataFile.write("Column: %i min %s max %s fullIndexMemoryBudget %i \n" % (column, self.values[column][0], self.values[column][self.uniqueValues[column] - 1], self.memoryBudgetForFullIndexation))
             except:
                 pass
-
-    def build(self):
-        self.buildTableHeader()
-        self.determineStringColumnLength()
-        self.generateValues()
-        self.generateValueOrder()
-        self.buildTableData()
-        self.writeTableMetaData()
-        self.outputFile.close()
-
-        return self.memoryBudgetForFullIndexation

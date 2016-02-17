@@ -1,8 +1,9 @@
-import sys
 import json
+import sys
+
 from multiprocessing import Pool
-from table import Table
 from random import seed
+from table import Table
 
 # Multi-Threading leads despite of a fixed random generator seed to different tables
 MULTITHREADED = False
