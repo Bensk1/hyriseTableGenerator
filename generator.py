@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 
 from multiprocessing import Pool
@@ -38,5 +39,9 @@ if len(sys.argv) <> 3:
 else:
     configFile = sys.argv[1]
     outputDirectory = sys.argv[2]
+
+    if not os.path.exists(outputDirectory):
+        os.makedirs(outputDirectory)
+
     metaDataFile = open("%s/metadata" % (outputDirectory), "w")
     buildTables(configFile)
