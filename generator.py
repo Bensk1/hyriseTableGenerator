@@ -8,13 +8,16 @@ from table import Table
 
 def buildTable(tableConfig):
     table = Table(tableConfig['name'], tableConfig['rows'], tableConfig['columns'], tableConfig['stringsForEachInt'], tableConfig['stringLength'], tableConfig['uniqueValues'], outputDirectory, metaDataFile)
-    return table.build()
+    memoryBudget = table.build()
+    print "Finished building table: %s" % (tableConfig['name'])
+
+    return memoryBudget
 
 def buildTables(configFile):
     with open(configFile) as configFile:
         config = json.load(configFile)
 
-    tableConfigs = config["tables"]
+    tableConfigs = config['tables']
 
     # For testing purposes, uncomment for random tables
     seed(1238585430324)
