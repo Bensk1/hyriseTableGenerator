@@ -5,22 +5,20 @@ from multiprocessing import Pool
 from random import seed
 from table import Table
 
-# Multi-Threading leads despite of a fixed random generator seed to different tables
-MULTITHREADED = False
-
-
 def buildTable(tableConfig):
     table = Table(tableConfig['name'], tableConfig['rows'], tableConfig['columns'], tableConfig['stringsForEachInt'], tableConfig['stringLength'], tableConfig['uniqueValues'], outputDirectory, metaDataFile)
     return table.build()
 
 def buildTables(configFile):
     with open(configFile) as configFile:
-        tableConfigs = json.load(configFile)
+        config = json.load(configFile)
+
+    tableConfigs = config["tables"]
 
     # For testing purposes, uncomment for random tables
     seed(1238585430324)
 
-    if MULTITHREADED:
+    if config["multiThreaded"]:
         threadPool = Pool(len(tableConfigs))
 
         memoryBudgets = threadPool.map(buildTable, tableConfigs, 1)
