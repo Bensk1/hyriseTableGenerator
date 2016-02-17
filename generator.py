@@ -33,7 +33,7 @@ def buildTables(configFile):
         for tableConfig in tableConfigs:
             overallMemoryBudget += buildTable(tableConfig)
 
-    metaDataFile.write("Overall memory budget: %i" % (overallMemoryBudget))
+    metaDataFile.write("Overall memory budget for indexation of all tables: %i\n" % (overallMemoryBudget))
     metaDataFile.close()
 
 if len(sys.argv) <> 3:
