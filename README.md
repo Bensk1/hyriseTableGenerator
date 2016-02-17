@@ -2,7 +2,7 @@
 The repository includes a python script which converts Hyrise text tables to binary equivalents. Loading tables in binary format decreases the table load time.
 
 **Usage**:
-python tblToBinaryDump.py tableFile.tbl
+`python tblToBinaryDump.py tableFile.tbl`
 
 ### Table Generator
 The table generator generates tables in a hyrise-suitable format. The specifications of the tables to generate have to be provided as a configuration file. The specifications are defined in json format. An example is given in the *config.json* file in this directory. The configuration file also allows to configure whether tables should be generated in parallel and whether tables should be stored in binary format. The generator creates also a metadata file which contains information about min and max value per column and the amount of memory needed for indexation per table and for all tables.
@@ -19,6 +19,6 @@ A configuration consists of the following attributes, all of them are mandatory:
 - **uniqueValues** (*array of integer with length = columns or just int*): number of unique values per column. If no array and hence not a single value per column is provided the single int value is taken for all columns.
 
 **Usage**:
-python generator.py config.json outputDirectory
+`python generator.py config.json outputDirectory`
 
 #### The use of pypy will speed up the generation of larger tables significantly.
